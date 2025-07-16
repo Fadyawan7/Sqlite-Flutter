@@ -1,10 +1,26 @@
+name: "Build Android APK"
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+      - fahad       # 👈 add your custom branch here
+  pull_request:
+    branches:
+      - main
+      - master
+      - fahad       # 👈 optional: trigger builds for PRs to 'fahad' too
+
 jobs:
   build:
-    name: Android Build Only
+    name: Android Build
     runs-on: windows-latest
 
     steps:
       - uses: actions/checkout@v3
+
       - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
@@ -15,10 +31,13 @@ jobs:
           channel: 'stable'
           architecture: x64
 
-      - run: flutter pub get
-      - run: flutter build apk --release --split-per-abi
+      - name: Install dependencies
+        run: flutter pub get
 
-      - name: Push to Releases
+      - name: Build APK
+        run: flutter build apk --release --split-per-abi
+
+      - name: Upload to GitHub Releases
         uses: ncipollo/release-action@v1
         with:
           artifacts: "build/app/outputs/apk/release/*.apk"
